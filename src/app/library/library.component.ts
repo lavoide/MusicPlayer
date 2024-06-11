@@ -156,6 +156,8 @@ export class LibraryComponent {
 
   cut(event: Event, song: AudioFile): void {
     event.stopPropagation();
+    this.cutStart = 0;
+    this.cutEnd = 0;
     this.audioStreamService.loadForCut(song).subscribe((data) => {});
   }
 
