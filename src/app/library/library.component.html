@@ -27,7 +27,7 @@
                             <mat-menu class="cut-menu" #menuCut="matMenu">
                                 <div class="cut-menu-wrapper">
                                     {{audioStreamService.formatTime(cutStart)}}
-                                    <mat-slider class="cut-slider" min="0" [max]="state?.duration" step="0.1"
+                                    <mat-slider (click)="$event.stopPropagation()" class="cut-slider" min="0" [max]="state?.duration" step="0.1"
                                         [disabled]="state?.error || !state?.canPlay">
                                         <input [value]="0" (dragEnd)="handleCutStart($event)" matSliderStartThumb>
                                         <input [value]="state?.duration" (dragEnd)="handleCutEnd($event)"
