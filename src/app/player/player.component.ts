@@ -8,6 +8,7 @@ import {
   AudioStreamService,
   StreamState,
 } from '../shared/audio-stream.service';
+import { PlayList } from '../shared/audio.service';
 
 @Component({
   selector: 'app-player',
@@ -28,12 +29,15 @@ export class PlayerComponent {
   public state: StreamState | undefined;
   public audioContext = new AudioContext();
   public progress: number = 0;
+  public playlist: PlayList | undefined;
 
   ngOnInit() {
     this.audioStreamService.getState().subscribe((state) => {
       this.state = state;
-      // console.log(state);
     });
+    this.audioStreamService.getPlaylist().subscribe((playlist) => {
+      this.playlist = playlist;
+    })
   }
 
   public play = () => {
@@ -56,11 +60,19 @@ export class PlayerComponent {
     this.audioStreamService.loop(!this.state?.isLooping);
   };
 
-  public changeRate = (speed: any) => { 
+  public changeRate = (speed: any) => {
     this.audioStreamService.changeRate(speed.value);
   };
 
-  public changeVolume = (volume: any) => { 
+  public changeVolume = (volume: any) => {
     this.audioStreamService.changeVolume(volume.value);
+  };
+
+  public nextTrack = () => {
+    this.audioStreamService.nextTrack().subscribe(() => {});
+  };
+
+  public previousTrack = () => {
+    this.audioStreamService.previousTrack().subscribe(() => {});
   };
 }

@@ -1,0 +1,15 @@
+<mat-dialog-content>
+    <p>Select existing playlist</p>
+    <mat-form-field>
+        <mat-label>Playlist name</mat-label>
+        <mat-select [(value)]="data.selected">
+            @for (playlist of data.playlists; track $index) {
+            <mat-option [value]="playlist">{{playlist.name}}</mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">No Thanks</button>
+    <button mat-button [disabled]="!data.selected" [mat-dialog-close]="data.selected" cdkFocusInitial>Ok</button>
+</mat-dialog-actions>

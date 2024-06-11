@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject, Subject } from 'rxjs';
+import { Observable, BehaviorSubject, Subject, of } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import * as moment from 'moment';
+import { AudioFile, PlayList } from './audio.service';
 
 @Injectable({
   providedIn: 'root',
@@ -31,14 +32,18 @@ export class AudioStreamService {
     isLooping: false,
     playbackRate: 1,
     volume: 1,
+    trackNumber: null,
+    songName: '',
   };
+  private playlist$: BehaviorSubject<PlayList> = new BehaviorSubject<PlayList>({name: '', tracks: []});
 
-  private streamObservable(url: any) {
+  private streamObservable(url: any, load: boolean = false) {
     return new Observable((observer) => {
       this.audioObj.src = url;
       this.audioObj.load();
-      this.play();
-
+      if(!load) {
+        this.play();
+      }
       const handler = (event: Event) => {
         this.updateStateEvents(event);
         observer.next(event);
@@ -66,8 +71,25 @@ export class AudioStreamService {
     });
   }
 
-  playStream(url: any) {
-    return this.streamObservable(url).pipe(takeUntil(this.stop$));
+  playStream(file: AudioFile, isPlaylist: boolean = false) {
+    if(!isPlaylist) {
+      this.state.trackNumber = null;
+    }
+    this.state.songName = file.fileName;
+    this.stateChange.next(this.state);
+    return this.streamObservable(file.url).pipe(takeUntil(this.stop$));
+  }
+
+  playFromPlaylist(playlist: PlayList, trackNumber: number) {
+    this.playlist$.next(playlist);
+    this.state.trackNumber = trackNumber;
+    this.stateChange.next(this.state);
+    return this.playStream(playlist.tracks[trackNumber], true);
+  }
+
+  loadForCut(file: AudioFile) {
+    this.stateChange.next(this.state);
+    return this.streamObservable(file.url, true).pipe(takeUntil(this.stop$));
   }
 
   play() {
@@ -105,6 +127,24 @@ export class AudioStreamService {
     this.audioObj.volume = volume;
     this.state.volume = volume;
     this.stateChange.next(this.state);
+  }
+
+  nextTrack() {
+    if (this.playlist$.getValue().tracks.length > 0 && this.state.trackNumber !== null && this.playlist$.getValue().tracks.length > this.state.trackNumber + 1) {
+      this.state.trackNumber = this.state.trackNumber + 1;
+      this.stateChange.next(this.state);
+      return this.playStream(this.playlist$.getValue().tracks[this.state.trackNumber], true);
+    }
+    return of(null);
+  }
+
+  previousTrack() {
+    if (this.playlist$.getValue().tracks.length > 0 && this.state.trackNumber !== null && this.state.trackNumber - 1 >= 0) {
+      this.state.trackNumber = this.state.trackNumber - 1;
+      this.stateChange.next(this.state);
+      return this.playStream(this.playlist$.getValue().tracks[this.state.trackNumber], true);
+    }
+    return of(null);
   }
 
   formatTime(time: number, format: string = 'HH:mm:ss') {
@@ -155,11 +195,17 @@ export class AudioStreamService {
       isLooping: false,
       playbackRate: 1,
       volume: 1,
+      trackNumber: this.playlist$.getValue().tracks.length > 0 ? 0 : null,
+      songName: '',
     };
   }
 
   getState(): Observable<StreamState> {
     return this.stateChange.asObservable();
+  }
+
+  getPlaylist(): Observable<PlayList | undefined> {
+    return this.playlist$.asObservable();
   }
 }
 
@@ -174,4 +220,6 @@ export interface StreamState {
   isLooping: boolean;
   playbackRate: number;
   volume: number;
+  trackNumber: number | null;
+  songName: string;
 }

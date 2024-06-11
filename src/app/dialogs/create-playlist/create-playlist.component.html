@@ -1,0 +1,11 @@
+<mat-dialog-content>
+    <p>Please enter playlist name</p>
+    <mat-form-field>
+        <mat-label>Playlist name</mat-label>
+        <input matInput [(ngModel)]="data.name">
+    </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">No Thanks</button>
+    <button mat-button [disabled]="data.name.length === 0" [mat-dialog-close]="data.name" cdkFocusInitial>Ok</button>
+</mat-dialog-actions>

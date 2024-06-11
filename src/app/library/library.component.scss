@@ -1,3 +1,30 @@
+:host {
+  width: 50%;
+  // min-height: 500px;
+}
+
 .file-input {
   display: none;
+}
+
+.buttons-wrap {
+  display: flex;
+  justify-content: space-around;
+}
+
+.audio-element {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.info {
+  display: flex;
+  align-items: center;
+  margin: 8px 0 0 24px;
+  gap: 8px;
+}
+
+.cut-menu {
+  width: 300px;
 }

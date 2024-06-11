@@ -1,6 +1,6 @@
 <div class="player-wrap">
     <div class="content">
-
+        {{state?.songName}}
     </div>
     <div class="controls">
         <mat-toolbar-row class="time-slider-wrap">
@@ -30,18 +30,20 @@
                 </button>
             </div>
             <div class="controls-button-container">
-                <button [disabled]="state?.error || !state?.canPlay" mat-mini-fab color="warn" aria-label="left">
+                <button (click)="previousTrack()" [disabled]="state?.error || !state?.canPlay || !( 
+                    state && state.trackNumber !== null && state.trackNumber > 0)" mat-mini-fab color="warn"
+                    aria-label="left">
                     <mat-icon>skip_previous</mat-icon>
                 </button>
             </div>
             <div class="controls-button-container">
                 @if (state?.isPlaying) {
-                <button [disabled]="state?.error || !state?.canPlay" (click)="pause()" mat-fab color="warn"
+                <button (click)="pause()" [disabled]="state?.error || !state?.canPlay" mat-fab color="warn"
                     aria-label="pause">
                     <mat-icon>pause_circle</mat-icon>
                 </button>
                 } @else {
-                <button [disabled]="state?.error || !state?.canPlay" (click)="play()" mat-fab color="warn"
+                <button (click)="play()" [disabled]="state?.error || !state?.canPlay" mat-fab color="warn"
                     aria-label="play">
                     <mat-icon>play_circle</mat-icon>
                 </button>
@@ -49,7 +51,10 @@
 
             </div>
             <div class="controls-button-container">
-                <button [disabled]="state?.error || !state?.canPlay" mat-mini-fab color="warn" aria-label="right">
+                <button (click)="nextTrack()" [disabled]="state?.error || !state?.canPlay || !(
+                    state && state.trackNumber !== null && 
+                    playlist && playlist.tracks.length > 0 && playlist.tracks.length >= state.trackNumber + 2)"
+                    mat-mini-fab color="warn" aria-label="right">
                     <mat-icon>skip_next</mat-icon>
                 </button>
             </div>
@@ -60,7 +65,8 @@
                 </button>
             </div>
             <div class="controls-button-container">
-                <button mat-button [disabled]="state?.error || !state?.canPlay" [matMenuTriggerFor]="menuVolume">{{this.state
+                <button mat-button [disabled]="state?.error || !state?.canPlay"
+                    [matMenuTriggerFor]="menuVolume">{{this.state
                     && this.state.volume ? this.state.volume*100 + '%' : '100%'}}</button>
                 <mat-menu #menuVolume="matMenu">
                     <mat-slider class="volume-slider" min="0" max="1" step="0.1"
