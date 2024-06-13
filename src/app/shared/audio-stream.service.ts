@@ -35,13 +35,16 @@ export class AudioStreamService {
     trackNumber: null,
     songName: '',
   };
-  private playlist$: BehaviorSubject<PlayList> = new BehaviorSubject<PlayList>({name: '', tracks: []});
+  private playlist$: BehaviorSubject<PlayList> = new BehaviorSubject<PlayList>({
+    name: '',
+    tracks: [],
+  });
 
   private streamObservable(url: any, load: boolean = false) {
     return new Observable((observer) => {
       this.audioObj.src = url;
       this.audioObj.load();
-      if(!load) {
+      if (!load) {
         this.play();
       }
       const handler = (event: Event) => {
@@ -72,7 +75,7 @@ export class AudioStreamService {
   }
 
   playStream(file: AudioFile, isPlaylist: boolean = false) {
-    if(!isPlaylist) {
+    if (!isPlaylist) {
       this.state.trackNumber = null;
     }
     this.state.songName = file.fileName;
@@ -130,19 +133,33 @@ export class AudioStreamService {
   }
 
   nextTrack() {
-    if (this.playlist$.getValue().tracks.length > 0 && this.state.trackNumber !== null && this.playlist$.getValue().tracks.length > this.state.trackNumber + 1) {
+    if (
+      this.playlist$.getValue().tracks.length > 0 &&
+      this.state.trackNumber !== null &&
+      this.playlist$.getValue().tracks.length > this.state.trackNumber + 1
+    ) {
       this.state.trackNumber = this.state.trackNumber + 1;
       this.stateChange.next(this.state);
-      return this.playStream(this.playlist$.getValue().tracks[this.state.trackNumber], true);
+      return this.playStream(
+        this.playlist$.getValue().tracks[this.state.trackNumber],
+        true
+      );
     }
     return of(null);
   }
 
   previousTrack() {
-    if (this.playlist$.getValue().tracks.length > 0 && this.state.trackNumber !== null && this.state.trackNumber - 1 >= 0) {
+    if (
+      this.playlist$.getValue().tracks.length > 0 &&
+      this.state.trackNumber !== null &&
+      this.state.trackNumber - 1 >= 0
+    ) {
       this.state.trackNumber = this.state.trackNumber - 1;
       this.stateChange.next(this.state);
-      return this.playStream(this.playlist$.getValue().tracks[this.state.trackNumber], true);
+      return this.playStream(
+        this.playlist$.getValue().tracks[this.state.trackNumber],
+        true
+      );
     }
     return of(null);
   }

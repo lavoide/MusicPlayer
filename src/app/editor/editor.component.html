@@ -1,0 +1,21 @@
+<div class="editor-wrapper">
+    @for (tracklist of tracklists; track $index) {
+    <div class="track-wrap">
+        <div class="track">
+            <div class="track-item-wrap">
+                @for (track of tracklist.tracks; track $index) {
+                <div class="track-item"></div>
+                }
+            </div>
+        </div>
+        <mat-toolbar-row class="duration-slider-wrap">
+            {{ '00:00:00' }}
+            <mat-slider class="duration-slider" min="0" [max]="tracklist.totalDuration" step="1" discrete
+                [displayWith]="formatLabel">
+                <input matSliderThumb #slidertime (dragEnd)="onSliderChangeEnd($event)"></mat-slider>
+            {{ audioStreamService.formatTime(tracklist.totalDuration) || '00:00:00' }}
+        </mat-toolbar-row>
+    </div>
+
+    }
+</div>
