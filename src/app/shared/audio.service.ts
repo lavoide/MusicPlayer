@@ -30,10 +30,6 @@ export class AudioService {
       fileName: 'Sample 6',
       url: '/assets/audio/sample-6.mp3',
     },
-    {
-      fileName: 'Sample 7',
-      url: '/assets/audio/sample-7.mp3',
-    },
   ];
 
   private playlists: Array<PlayList> = [
