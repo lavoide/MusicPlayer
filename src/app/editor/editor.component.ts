@@ -39,6 +39,7 @@ export class EditorComponent {
 
   public currentTime: number = 0;
   public isPlaying: boolean = false;
+  public isLoaded: boolean = false;
 
   constructor() {
     this.tracklists = this.audioEditorService.tracks$.getValue();
@@ -54,8 +55,8 @@ export class EditorComponent {
     });
   }
 
-  public seekTo(event: any, tracklist: Tracklist) {
-    console.log(event.value);
+  public seekTo(event: any, tracklistIndex: number) {
+    this.audioEditorService.seekToTime(event.value, tracklistIndex);
   }
 
   public formatLabel = (value: number) => {
@@ -71,26 +72,25 @@ export class EditorComponent {
 
   public play = () => {
     this.audioEditorService.resume();
-    // this.audioStreamService.play();
   };
 
   public playTracklist = () => {
-    this.audioEditorService.playTracklist(0);
+    this.audioEditorService.refresh(0);
+    this.isLoaded = true;
   };
 
   public pause = () => {
     this.audioEditorService.pause();
-    // this.audioStreamService.pause();
   };
 
   public drop(event: CdkDragDrop<string[]>, index: number): void {
-    console.log(event, index);
+    if (!this.isLoaded) return;
     moveItemInArray(
       this.tracklists[index].tracks,
       event.previousIndex,
       event.currentIndex
     );
     this.audioEditorService.tracks$.next(this.tracklists);
-    this.audioEditorService.playTracklist(0);
+    this.audioEditorService.refresh(0);
   }
 }

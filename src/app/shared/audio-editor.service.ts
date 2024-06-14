@@ -108,6 +108,27 @@ export class AudioEditorService {
     return time;
   }
 
+  public refresh(index: number): void {
+    this.currentTracklistIndex = 0;
+    this.currentTrackIndex = 0;
+    this.isPlaying$.next(false);
+
+    // Pause and reset all tracks
+    this.tracklist.forEach((tracklist) => {
+      tracklist.tracks.forEach((track) => {
+        track.audio.pause();
+        track.audio.currentTime = 0;
+        track.currentTime = 0;
+      });
+      tracklist.currentTime = 0;
+    });
+
+    this.currentTracklistIndex = 0;
+    this.currentTrackIndex = 0;
+    this.tracks$.next(this.tracklist);
+    this.playTracklist(index);
+  }
+
   public playTracklist(index: number) {
     if (index < this.tracklist.length) {
       this.currentTracklistIndex = index;
@@ -153,15 +174,8 @@ export class AudioEditorService {
   }
 
   private onTrackEnded() {
-    console.log('onTrackEnded');
     const tracklist = this.tracklist[this.currentTracklistIndex];
     const currentTrack = tracklist.tracks[this.currentTrackIndex];
-    console.log(
-      'currentTrack',
-      this.currentTracklistIndex,
-      this.currentTrackIndex,
-      currentTrack
-    );
 
     currentTrack.audio.removeEventListener(
       'ended',
@@ -171,10 +185,44 @@ export class AudioEditorService {
       'timeupdate',
       this.onTrackTimeUpdate.bind(this)
     );
-
-    this.currentTrackIndex++;
-    if (this.currentTrackIndex < tracklist.tracks.length) {
+    if(this.currentTrackIndex < tracklist.tracks.length - 1) {
+      this.currentTrackIndex++;
       this.playTrack(tracklist.tracks[this.currentTrackIndex]);
+    }
+  }
+
+public seekToTime(time: number, trackListIndex: number) {
+    const tracklist = this.tracklist[trackListIndex];
+    
+    // Stop current track
+    const currentTrack = tracklist.tracks[this.currentTrackIndex];
+    currentTrack.audio.pause();
+    currentTrack.audio.currentTime = 0;
+    currentTrack.audio.removeEventListener('ended', this.onTrackEnded.bind(this));
+    currentTrack.audio.removeEventListener('timeupdate', this.onTrackTimeUpdate.bind(this));
+    
+    // Calculate the new track index and time within that track
+    let cumulativeTime = 0;
+    let newTrackIndex = 0;
+    while (newTrackIndex < tracklist.tracks.length) {
+      const track = tracklist.tracks[newTrackIndex];
+      if (cumulativeTime + track.duration > time) {
+        break;
+      }
+      cumulativeTime += track.duration;
+      newTrackIndex++;
+    }
+    
+    if (newTrackIndex < tracklist.tracks.length) {
+      const newTrack = tracklist.tracks[newTrackIndex];
+      const newTrackTime = time - cumulativeTime;
+      newTrack.audio.currentTime = newTrackTime;
+
+      this.currentTrackIndex = newTrackIndex;
+      this.tracks$.next(this.tracklist);
+      this.playTrack(newTrack);
+    } else {
+      console.error("Specified time exceeds tracklist duration");
     }
   }
 }

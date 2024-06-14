@@ -13,27 +13,33 @@
         <mat-toolbar-row class="duration-slider-wrap">
             {{ '00:00:00' }}
             <mat-slider class="duration-slider" min="0" [max]="tracklist.totalDuration" step="1" discrete
-                [displayWith]="formatLabel">
+                [displayWith]="formatLabel" [disabled]="tracklists[0].tracks.length === 0 || !isLoaded">
                 <input matSliderThumb #slidertime [value]="tracklist.currentTime"
-                    (dragEnd)="seekTo($event, tracklist)"></mat-slider>
+                    (dragEnd)="seekTo($event, $index)"></mat-slider>
             {{ audioStreamService.formatTime(tracklist.totalDuration) || '00:00:00' }}
         </mat-toolbar-row>
     </div>
     <div class="buttons-wrap">
+        @if (isLoaded){
         @if (isPlaying) {
-        <button (click)="pause()" [disabled]="tracklists[0].tracks.length === 0" mat-fab color="warn"
+        <button (click)="pause()" [disabled]="tracklists[0].tracks.length === 0 || !isLoaded" mat-fab color="warn"
             aria-label="pause">
             <mat-icon>pause_circle</mat-icon>
         </button>
         } @else {
-        <button (click)="play()" [disabled]="tracklists[0].tracks.length === 0" mat-fab color="warn" aria-label="play">
+        <button (click)="play()" [disabled]="tracklists[0].tracks.length === 0 || !isLoaded" mat-fab color="warn"
+            aria-label="play">
             <mat-icon>play_circle</mat-icon>
         </button>
         }
-        <button (click)="playTracklist()" [disabled]="tracklists[0].tracks.length === 0" mat-fab
-            color="warn" aria-label="play">
+        }
+        @else {
+        <button (click)="playTracklist()" [disabled]="tracklists[0].tracks.length === 0" mat-fab color="warn"
+            aria-label="play">
             <mat-icon>play_arrow</mat-icon>
         </button>
+        }
+
     </div>
     }
 </div>
