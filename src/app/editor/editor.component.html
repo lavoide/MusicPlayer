@@ -1,26 +1,35 @@
 <div class="editor-wrapper">
-    @for (tracklist of tracklists; track $index) {
+    @for (tracklist of tracklists; track tracklist; let i = $index;) {
     <div class="track-wrap">
         <div class="track">
             <div class="track-item-wrap" cdkDropList (cdkDropListDropped)="drop($event, $index)" #track>
-                @for (track of tracklist.tracks; track track; let i = $index) {
+                @for (track of tracklist.tracks; track track; let j = $index) {
                 <div class="track-item" cdkDrag [style.width]="calcWidth(track, tracklist.totalDuration)">
                     {{track.fileName}}
-                    @if (track.volume > 0) {
-                    <div class="button-wrap" (click)="changeVolume($index, i, 0)">
-                        <button mat-icon-button disabled aria-label="Mute">
-                            <mat-icon>volume_mute</mat-icon>
-                        </button>
+                    <div class="all-buttons-wrap">
+                        @if (track.volume > 0) {
+                        <div class="button-wrap" (click)="changeVolume(i, j, 0)">
+                            <button mat-icon-button disabled aria-label="Unmute">
+                                <mat-icon>volume_mute</mat-icon>
+                            </button>
+                        </div>
+                        } @else {
+                        <div class="button-wrap" (click)="changeVolume(i, j, 1)">
+                            <button mat-icon-button disabled aria-label="Mute">
+                                <mat-icon>volume_off</mat-icon>
+                            </button>
+                        </div>
+                        }
+                        <button class="menu-button" mat-icon-button [matMenuTriggerFor]="menuOptions">
+                            <mat-icon>more_vert</mat-icon></button>
+                        <mat-menu #menuOptions="matMenu" yPosition="above">
+                            <button (click)="copyTrack(i, j)" mat-menu-item>Copy</button>
+                            <button (click)="deleteTrack(i, j)" mat-menu-item>Delete</button>
+                        </mat-menu>
                     </div>
-                    } @else {
-                    <div class="button-wrap" (click)="changeVolume($index, i, 1)">
-                        <button mat-icon-button disabled aria-label="Unmute">
-                            <mat-icon>volume_off</mat-icon>
-                        </button>
-                    </div>
-                    }
                 </div>
                 }
+
             </div>
         </div>
         <mat-toolbar-row class="duration-slider-wrap">

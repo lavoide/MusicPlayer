@@ -24,6 +24,12 @@
         background-color: var(--mat-fab-small-foreground-color);
         color: var(--mat-app-background-color);
         padding-left: 4px;
+        .all-buttons-wrap {
+          display: flex;
+        }
+        .menu-button {
+          color: var(--mat-app-background-color);
+        }
         .button-wrap {
           cursor: pointer;
           button {

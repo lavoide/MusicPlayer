@@ -3,6 +3,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
 import {
   CdkDragDrop,
   CdkDropList,
@@ -24,6 +25,7 @@ import { AudioStreamService } from '../shared/audio-stream.service';
     MatSliderModule,
     MatIconModule,
     MatButtonModule,
+    MatMenuModule,
     CdkDropList,
     CdkDrag,
   ],
@@ -100,5 +102,13 @@ export class EditorComponent {
     volume: number
   ) => {
     this.audioEditorService.changeVolume(trackListIndex, trackIndex, volume);
+  };
+
+  public copyTrack = (trackListIndex: number, trackIndex: number) => {
+    this.audioEditorService.copyTrack(trackListIndex, trackIndex);
+  };
+
+  public deleteTrack = (trackListIndex: number, trackIndex: number) => {
+    this.audioEditorService.deleteTrack(trackListIndex, trackIndex);
   };
 }
