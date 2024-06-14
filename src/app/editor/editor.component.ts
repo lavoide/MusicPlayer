@@ -93,4 +93,12 @@ export class EditorComponent {
     this.audioEditorService.tracks$.next(this.tracklists);
     this.audioEditorService.refresh(0);
   }
+
+  public changeVolume = (
+    trackListIndex: number,
+    trackIndex: number,
+    volume: number
+  ) => {
+    this.audioEditorService.changeVolume(trackListIndex, trackIndex, volume);
+  };
 }

@@ -225,6 +225,14 @@ public seekToTime(time: number, trackListIndex: number) {
       console.error("Specified time exceeds tracklist duration");
     }
   }
+
+  public changeVolume(trackListIndex: number, trackIndex: number, volume: number) {
+    const tracklist = this.tracklist[trackListIndex];
+    const track = tracklist.tracks[trackIndex];
+    track.audio.volume = volume;
+    track.volume = volume;
+    this.tracks$.next(this.tracklist);
+  }
 }
 
 export interface AudioTrack {

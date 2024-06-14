@@ -3,9 +3,22 @@
     <div class="track-wrap">
         <div class="track">
             <div class="track-item-wrap" cdkDropList (cdkDropListDropped)="drop($event, $index)" #track>
-                @for (track of tracklist.tracks; track $index) {
+                @for (track of tracklist.tracks; track track; let i = $index) {
                 <div class="track-item" cdkDrag [style.width]="calcWidth(track, tracklist.totalDuration)">
                     {{track.fileName}}
+                    @if (track.volume > 0) {
+                    <div class="button-wrap" (click)="changeVolume($index, i, 0)">
+                        <button mat-icon-button disabled aria-label="Mute">
+                            <mat-icon>volume_mute</mat-icon>
+                        </button>
+                    </div>
+                    } @else {
+                    <div class="button-wrap" (click)="changeVolume($index, i, 1)">
+                        <button mat-icon-button disabled aria-label="Unmute">
+                            <mat-icon>volume_off</mat-icon>
+                        </button>
+                    </div>
+                    }
                 </div>
                 }
             </div>
