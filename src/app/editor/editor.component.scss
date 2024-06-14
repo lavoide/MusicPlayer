@@ -67,26 +67,26 @@
 }
 
 ::ng-deep {
-  .mdc-slider__value-indicator {
+  .duration-slider .mdc-slider__value-indicator {
     background-color: transparent !important;
     transform: scale(1) !important;
   }
-  .mdc-slider .mdc-slider__value-indicator-container {
+  .duration-slider .mdc-slider__value-indicator-container {
     bottom: -30px !important;
     left: 25% !important;
     bottom: -30% !important;
   }
-  .mat-mdc-slider .mdc-slider__value-indicator-text {
+  .duration-slider .mdc-slider__value-indicator-text {
     color: var(--mat-app-text-color);
   }
-  .mat-mdc-slider .mdc-slider__thumb-knob {
+  .duration-slider .mdc-slider__thumb-knob {
     width: 3px !important;
     height: 76px !important;
     background-color: #723600 !important;
     border-style: hidden !important;
     top: -26% !important;
   }
-  .mat-mdc-slider-visual-thumb .mat-ripple {
+  .duration-slider .mat-mdc-slider-visual-thumb .mat-ripple {
     height: 0 !important;
     width: 0 !important;
   }

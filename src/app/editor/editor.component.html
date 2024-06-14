@@ -25,6 +25,12 @@
                         <mat-menu #menuOptions="matMenu" yPosition="above">
                             <button (click)="copyTrack(i, j)" mat-menu-item>Copy</button>
                             <button (click)="deleteTrack(i, j)" mat-menu-item>Delete</button>
+                            <button [matMenuTriggerFor]="rate" mat-menu-item>Change Tempo</button>
+                        </mat-menu>
+                        <mat-menu #rate="matMenu">
+                            <mat-slider class="rate-slider" min="0.5" max="2" step="0.1" [displayWith]="formatLabelSpeed">
+                                <input matSliderThumb #rateslider [value]="track.playbackRate"
+                                    (dragEnd)="changeRate(i, j, $event.value)"></mat-slider>
                         </mat-menu>
                     </div>
                 </div>

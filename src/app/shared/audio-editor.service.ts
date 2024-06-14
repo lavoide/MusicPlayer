@@ -194,7 +194,6 @@ export class AudioEditorService {
   public seekToTime(time: number, trackListIndex: number) {
     const tracklist = this.tracklist[trackListIndex];
 
-    // Stop current track
     const currentTrack = tracklist.tracks[this.currentTrackIndex];
     currentTrack.audio.pause();
     currentTrack.audio.currentTime = 0;
@@ -207,7 +206,6 @@ export class AudioEditorService {
       this.onTrackTimeUpdate.bind(this)
     );
 
-    // Calculate the new track index and time within that track
     let cumulativeTime = 0;
     let newTrackIndex = 0;
     while (newTrackIndex < tracklist.tracks.length) {
@@ -237,11 +235,22 @@ export class AudioEditorService {
     trackIndex: number,
     volume: number
   ) {
-    console.log(trackListIndex, trackIndex, volume);
     const tracklist = this.tracklist[trackListIndex];
     const track = tracklist.tracks[trackIndex];
     track.audio.volume = volume;
     track.volume = volume;
+    this.tracks$.next(this.tracklist);
+  }
+
+  public changeRate(
+    trackListIndex: number,
+    trackIndex: number,
+    rate: number
+  ) {
+    const tracklist = this.tracklist[trackListIndex];
+    const track = tracklist.tracks[trackIndex];
+    track.audio.playbackRate = rate;
+    track.playbackRate = rate;
     this.tracks$.next(this.tracklist);
   }
 

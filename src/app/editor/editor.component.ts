@@ -65,6 +65,10 @@ export class EditorComponent {
     return this.audioStreamService.formatTime(value);
   };
 
+  public formatLabelSpeed = (value: number) => {
+    return `x{${value}`;
+  };
+
   public calcWidth = (track: AudioTrack, totalDuration: number): string => {
     const full = parseInt(this.trackWrapperElement.nativeElement.clientWidth);
     const ratio = track.duration / totalDuration;
@@ -102,6 +106,14 @@ export class EditorComponent {
     volume: number
   ) => {
     this.audioEditorService.changeVolume(trackListIndex, trackIndex, volume);
+  };
+
+  public changeRate = (
+    trackListIndex: number,
+    trackIndex: number,
+    rate: number
+  ) => {
+    this.audioEditorService.changeRate(trackListIndex, trackIndex, rate);
   };
 
   public copyTrack = (trackListIndex: number, trackIndex: number) => {
