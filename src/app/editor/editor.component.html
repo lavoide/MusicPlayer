@@ -2,9 +2,11 @@
     @for (tracklist of tracklists; track $index) {
     <div class="track-wrap">
         <div class="track">
-            <div class="track-item-wrap">
+            <div class="track-item-wrap" cdkDropList (cdkDropListDropped)="drop($event, $index)" #track>
                 @for (track of tracklist.tracks; track $index) {
-                <div class="track-item"></div>
+                <div class="track-item" cdkDrag [style.width]="calcWidth(track, tracklist.totalDuration)">
+                    {{track.fileName}}
+                </div>
                 }
             </div>
         </div>
@@ -12,10 +14,26 @@
             {{ '00:00:00' }}
             <mat-slider class="duration-slider" min="0" [max]="tracklist.totalDuration" step="1" discrete
                 [displayWith]="formatLabel">
-                <input matSliderThumb #slidertime (dragEnd)="onSliderChangeEnd($event)"></mat-slider>
+                <input matSliderThumb #slidertime [value]="tracklist.currentTime"
+                    (dragEnd)="seekTo($event, tracklist)"></mat-slider>
             {{ audioStreamService.formatTime(tracklist.totalDuration) || '00:00:00' }}
         </mat-toolbar-row>
     </div>
-
+    <div class="buttons-wrap">
+        @if (isPlaying) {
+        <button (click)="pause()" [disabled]="tracklists[0].tracks.length === 0" mat-fab color="warn"
+            aria-label="pause">
+            <mat-icon>pause_circle</mat-icon>
+        </button>
+        } @else {
+        <button (click)="play()" [disabled]="tracklists[0].tracks.length === 0" mat-fab color="warn" aria-label="play">
+            <mat-icon>play_circle</mat-icon>
+        </button>
+        }
+        <button (click)="playTracklist()" [disabled]="tracklists[0].tracks.length === 0" mat-fab
+            color="warn" aria-label="play">
+            <mat-icon>play_arrow</mat-icon>
+        </button>
+    </div>
     }
 </div>

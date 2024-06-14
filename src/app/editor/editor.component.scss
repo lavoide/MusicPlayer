@@ -1,35 +1,45 @@
 .editor-wrapper {
   margin-top: 24px;
   .track-wrap {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
     .track {
       height: 50px;
       background-color: var(--mdc-fab-small-container-color);
       margin-left: 76px;
       margin-right: 76px;
     }
-    width: 100%;
-    display: flex;
-    flex-direction: column;
     .track-item-wrap {
       display: flex;
       align-items: center;
       margin-top: 5px;
       .track-item {
+        cursor: move;
         height: 40px;
-        width: 100%;
+        min-width: 10px;
         margin-right: 4px;
         background-color: var(--mat-fab-small-foreground-color);
+        color:  var(--mat-app-background-color);
+        padding-left: 4px;
       }
     }
     .duration-slider {
       width: calc(100% - 148px);
     }
   }
+  .buttons-wrap {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin-top: 20px;
+  }
 }
 
 ::ng-deep {
   .mdc-slider__value-indicator {
     background-color: transparent !important;
+    transform: scale(1) !important;
   }
   .mdc-slider .mdc-slider__value-indicator-container {
     bottom: -30px !important;
@@ -42,6 +52,7 @@
   .mat-mdc-slider .mdc-slider__thumb-knob {
     width: 3px !important;
     height: 76px !important;
+    background-color: #723600 !important;
     border-style: hidden !important;
     top: -26% !important;
   }

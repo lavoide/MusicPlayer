@@ -13,6 +13,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
+import { AudioEditorService } from '../shared/audio-editor.service';
 
 @Component({
   selector: 'app-tracklist',
@@ -35,6 +36,7 @@ export class TracklistComponent {
   songsSelector!: MatSelectionList;
   private audioService = inject(AudioService);
   public audioStreamService = inject(AudioStreamService);
+  public audioEditorService = inject(AudioEditorService);
   public state: StreamState | undefined;
 
   public fileName = '';
@@ -54,10 +56,7 @@ export class TracklistComponent {
     this.audioService.audio$.subscribe((audio) => {
       this.audio = audio;
     });
-    this.audioService.playlists$.subscribe((playlists) => {
-      this.playlists = playlists;
-      this.playlistsState = playlists.map((playlist, index) => index === 0);
-    });
+
     this.audioStreamService.getState().subscribe((state) => {
       this.state = state;
     });
@@ -92,5 +91,7 @@ export class TracklistComponent {
     }
   }
 
-  addToEditor(event: Event, song: AudioFile): void {}
+  addToEditor(event: Event, song: AudioFile): void {
+    this.audioEditorService.addToTracklist(0, song);
+  }
 }
