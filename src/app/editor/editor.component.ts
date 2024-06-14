@@ -8,7 +8,9 @@ import {
   CdkDragDrop,
   CdkDropList,
   CdkDrag,
+  CdkDropListGroup,
   moveItemInArray,
+  transferArrayItem,
 } from '@angular/cdk/drag-drop';
 import {
   AudioEditorService,
@@ -26,6 +28,7 @@ import { AudioStreamService } from '../shared/audio-stream.service';
     MatIconModule,
     MatButtonModule,
     MatMenuModule,
+    CdkDropListGroup,
     CdkDropList,
     CdkDrag,
   ],
@@ -80,8 +83,8 @@ export class EditorComponent {
     this.audioEditorService.resume();
   };
 
-  public playTracklist = () => {
-    this.audioEditorService.refresh(0);
+  public playTracklist = (i: number) => {
+    this.audioEditorService.refresh(i);
     this.isLoaded = true;
   };
 
@@ -89,13 +92,24 @@ export class EditorComponent {
     this.audioEditorService.pause();
   };
 
-  public drop(event: CdkDragDrop<string[]>, index: number): void {
+  public drop(event: CdkDragDrop<AudioTrack[]>): void {
     if (!this.isLoaded) return;
-    moveItemInArray(
-      this.tracklists[index].tracks,
-      event.previousIndex,
-      event.currentIndex
-    );
+    if (event.previousContainer === event.container) {
+      moveItemInArray(
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
+    } else {
+      console.log('trasfer')
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
+    }
+
     this.audioEditorService.tracks$.next(this.tracklists);
     this.audioEditorService.refresh(0);
   }

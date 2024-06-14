@@ -55,6 +55,7 @@ export class TracklistComponent {
   ngOnInit() {
     this.audioService.audio$.subscribe((audio) => {
       this.audio = audio;
+      this.addToEditor(null as any, audio[1], 1);
     });
 
     this.audioStreamService.getState().subscribe((state) => {
@@ -62,26 +63,6 @@ export class TracklistComponent {
     });
   }
 
-  public play = (event: Event, audio: any) => {
-    event.stopPropagation();
-    this.audioStreamService.playStream(audio).subscribe((data) => {});
-  };
-
-  public playFromPlaylist = (
-    event: Event,
-    playlist: PlayList,
-    trackNumber: number
-  ) => {
-    event.stopPropagation();
-    this.audioStreamService
-      .playFromPlaylist(playlist, trackNumber)
-      .subscribe((data) => {});
-  };
-
-  public pause = (event: Event) => {
-    event.stopPropagation();
-    this.audioStreamService.pause();
-  };
 
   onFileSelected(event: any) {
     const file: File = event.target.files[0];
@@ -91,7 +72,7 @@ export class TracklistComponent {
     }
   }
 
-  addToEditor(event: Event, song: AudioFile): void {
-    this.audioEditorService.addToTracklist(0, song);
+  addToEditor(event: Event, song: AudioFile, trackIndex: number): void {
+    this.audioEditorService.addToTracklist(trackIndex, song);
   }
 }

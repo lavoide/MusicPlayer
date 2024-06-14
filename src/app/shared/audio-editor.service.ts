@@ -10,36 +10,13 @@ export class AudioEditorService {
     {
       totalDuration: 0,
       currentTime: 0,
-      tracks: [
-        // {
-        //   fileName: 'Sample 5',
-        //   url: '/assets/audio/sample-5.mp3',
-        //   audio: new Audio('/assets/audio/sample-5.mp3'),
-        //   duration: 100,
-        //   volume: 100,
-        //   playbackRate: 1,
-        //   detune: 0,
-        // },
-        // {
-        //   fileName: 'Sample 6',
-        //   url: '/assets/audio/sample-6.mp3',
-        //   audio: new Audio('/assets/audio/sample-6.mp3'),
-        //   duration: 100,
-        //   volume: 100,
-        //   playbackRate: 1,
-        //   detune: 0,
-        // },
-        // {
-        //   fileName: 'Sample 7',
-        //   url: '/assets/audio/sample-7.mp3',
-        //   audio: new Audio('/assets/audio/sample-7.mp3'),
-        //   duration: 100,
-        //   volume: 100,
-        //   playbackRate: 1,
-        //   detune: 0,
-        // },
-      ],
+      tracks: [],
     },
+    // {
+    //   totalDuration: 0,
+    //   currentTime: 0,
+    //   tracks: [],
+    // },
   ];
 
   public tracks$ = new BehaviorSubject(this.tracklist);
@@ -242,11 +219,7 @@ export class AudioEditorService {
     this.tracks$.next(this.tracklist);
   }
 
-  public changeRate(
-    trackListIndex: number,
-    trackIndex: number,
-    rate: number
-  ) {
+  public changeRate(trackListIndex: number, trackIndex: number, rate: number) {
     const tracklist = this.tracklist[trackListIndex];
     const track = tracklist.tracks[trackIndex];
     track.audio.playbackRate = rate;

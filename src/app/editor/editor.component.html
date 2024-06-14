@@ -1,8 +1,8 @@
-<div class="editor-wrapper">
+<div class="editor-wrapper"  cdkDropListGroup>
     @for (tracklist of tracklists; track tracklist; let i = $index;) {
     <div class="track-wrap">
         <div class="track">
-            <div class="track-item-wrap" cdkDropList (cdkDropListDropped)="drop($event, $index)" #track>
+            <div class="track-item-wrap" cdkDropList cdkDropListOrientation="horizontal" [cdkDropListData]="tracklist.tracks" (cdkDropListDropped)="drop($event)" #track>
                 @for (track of tracklist.tracks; track track; let j = $index) {
                 <div class="track-item" cdkDrag [style.width]="calcWidth(track, tracklist.totalDuration)">
                     {{track.fileName}}
@@ -50,24 +50,23 @@
     <div class="buttons-wrap">
         @if (isLoaded){
         @if (isPlaying) {
-        <button (click)="pause()" [disabled]="tracklists[0].tracks.length === 0 || !isLoaded" mat-fab color="warn"
+        <button (click)="pause()" [disabled]="tracklists[i].tracks.length === 0 || !isLoaded" mat-fab color="warn"
             aria-label="pause">
             <mat-icon>pause_circle</mat-icon>
         </button>
         } @else {
-        <button (click)="play()" [disabled]="tracklists[0].tracks.length === 0 || !isLoaded" mat-fab color="warn"
+        <button (click)="play()" [disabled]="tracklists[i].tracks.length === 0 || !isLoaded" mat-fab color="warn"
             aria-label="play">
             <mat-icon>play_circle</mat-icon>
         </button>
         }
         }
         @else {
-        <button (click)="playTracklist()" [disabled]="tracklists[0].tracks.length === 0" mat-fab color="warn"
+        <button (click)="playTracklist(i)" [disabled]="tracklists[i].tracks.length === 0" mat-fab color="warn"
             aria-label="play">
             <mat-icon>play_arrow</mat-icon>
         </button>
         }
-
     </div>
     }
 </div>
