@@ -28,3 +28,32 @@
 .cut-menu {
   width: 300px;
 }
+
+::ng-deep.mat-mdc-menu-panel.cut-menu {
+  max-width: fit-content !important;
+  // width: 500px;
+  .mat-mdc-menu-content {
+    width: 100%;
+  }
+  .cut-menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cut-menu-wrapper {
+    display: flex;
+    align-items: center;
+    width: 400px;
+    color: var(--mat-app-text-color);
+    padding: 0px 8px;
+  }
+  .cut-slider {
+    width: calc(100% - 66px);
+    margin: 0 20px;
+    gap: 8px;
+  }
+}
+
+::ng-deep.mat-mdc-tab-body.mat-mdc-tab-body-active {
+  min-height: 400px;
+}

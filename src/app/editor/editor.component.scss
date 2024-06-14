@@ -1,0 +1,94 @@
+.editor-wrapper {
+  margin-top: 24px;
+  .track-wrap {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    .track {
+      height: 50px;
+      background-color: var(--mdc-fab-small-container-color);
+      margin-left: 76px;
+      margin-right: 76px;
+    }
+    .track-item-wrap {
+      display: flex;
+      align-items: center;
+      margin-top: 5px;
+      .track-item {
+        display: flex;
+        justify-content: space-between;
+        cursor: move;
+        height: 40px;
+        min-width: 10px;
+        margin-right: 4px;
+        background-color: var(--mat-fab-small-foreground-color);
+        color: var(--mat-app-background-color);
+        padding-left: 4px;
+        .all-buttons-wrap {
+          display: flex;
+        }
+        .menu-button {
+          color: var(--mat-app-background-color);
+        }
+        .button-wrap {
+          cursor: pointer;
+          button {
+            color: var(--mat-app-background-color);
+          }
+        }
+      }
+    }
+    .duration-slider {
+      width: calc(100% - 148px);
+    }
+  }
+  .buttons-wrap {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+}
+
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 4px;
+  background-color: var(--mat-fab-small-foreground-color);
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+    0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+::ng-deep {
+  .duration-slider .mdc-slider__value-indicator {
+    background-color: transparent !important;
+    transform: scale(1) !important;
+  }
+  .duration-slider .mdc-slider__value-indicator-container {
+    bottom: -30px !important;
+    left: 25% !important;
+    bottom: -30% !important;
+  }
+  .duration-slider .mdc-slider__value-indicator-text {
+    color: var(--mat-app-text-color);
+  }
+  .duration-slider .mdc-slider__thumb-knob {
+    width: 3px !important;
+    height: 76px !important;
+    background-color: #723600 !important;
+    border-style: hidden !important;
+    top: -26% !important;
+  }
+  .duration-slider .mat-mdc-slider-visual-thumb .mat-ripple {
+    height: 0 !important;
+    width: 0 !important;
+  }
+}

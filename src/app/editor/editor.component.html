@@ -1,0 +1,72 @@
+<div class="editor-wrapper"  cdkDropListGroup>
+    @for (tracklist of tracklists; track tracklist; let i = $index;) {
+    <div class="track-wrap">
+        <div class="track">
+            <div class="track-item-wrap" cdkDropList cdkDropListOrientation="horizontal" [cdkDropListData]="tracklist.tracks" (cdkDropListDropped)="drop($event)" #track>
+                @for (track of tracklist.tracks; track track; let j = $index) {
+                <div class="track-item" cdkDrag [style.width]="calcWidth(track, tracklist.totalDuration)">
+                    {{track.fileName}}
+                    <div class="all-buttons-wrap">
+                        @if (track.volume > 0) {
+                        <div class="button-wrap" (click)="changeVolume(i, j, 0)">
+                            <button mat-icon-button disabled aria-label="Unmute">
+                                <mat-icon>volume_mute</mat-icon>
+                            </button>
+                        </div>
+                        } @else {
+                        <div class="button-wrap" (click)="changeVolume(i, j, 1)">
+                            <button mat-icon-button disabled aria-label="Mute">
+                                <mat-icon>volume_off</mat-icon>
+                            </button>
+                        </div>
+                        }
+                        <button class="menu-button" mat-icon-button [matMenuTriggerFor]="menuOptions">
+                            <mat-icon>more_vert</mat-icon></button>
+                        <mat-menu #menuOptions="matMenu" yPosition="above">
+                            <button (click)="copyTrack(i, j)" mat-menu-item>Copy</button>
+                            <button (click)="deleteTrack(i, j)" mat-menu-item>Delete</button>
+                            <button [matMenuTriggerFor]="rate" mat-menu-item>Change Tempo</button>
+                        </mat-menu>
+                        <mat-menu #rate="matMenu">
+                            <mat-slider class="rate-slider" min="0.5" max="2" step="0.1" [displayWith]="formatLabelSpeed">
+                                <input matSliderThumb #rateslider [value]="track.playbackRate"
+                                    (dragEnd)="changeRate(i, j, $event.value)"></mat-slider>
+                        </mat-menu>
+                    </div>
+                </div>
+                }
+
+            </div>
+        </div>
+        <mat-toolbar-row class="duration-slider-wrap">
+            {{ '00:00:00' }}
+            <mat-slider class="duration-slider" min="0" [max]="tracklist.totalDuration" step="1" discrete
+                [displayWith]="formatLabel" [disabled]="tracklists[0].tracks.length === 0 || !isLoaded">
+                <input matSliderThumb #slidertime [value]="tracklist.currentTime"
+                    (dragEnd)="seekTo($event, $index)"></mat-slider>
+            {{ audioStreamService.formatTime(tracklist.totalDuration) || '00:00:00' }}
+        </mat-toolbar-row>
+    </div>
+    <div class="buttons-wrap">
+        @if (isLoaded){
+        @if (isPlaying) {
+        <button (click)="pause()" [disabled]="tracklists[i].tracks.length === 0 || !isLoaded" mat-fab color="warn"
+            aria-label="pause">
+            <mat-icon>pause_circle</mat-icon>
+        </button>
+        } @else {
+        <button (click)="play()" [disabled]="tracklists[i].tracks.length === 0 || !isLoaded" mat-fab color="warn"
+            aria-label="play">
+            <mat-icon>play_circle</mat-icon>
+        </button>
+        }
+        }
+        @else {
+        <button (click)="playTracklist(i)" [disabled]="tracklists[i].tracks.length === 0" mat-fab color="warn"
+            aria-label="play">
+            <mat-icon>play_arrow</mat-icon>
+        </button>
+        }
+    </div>
+    }
+</div>

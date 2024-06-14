@@ -71,7 +71,7 @@
                         </mat-panel-title>
                     </mat-expansion-panel-header>
                     <mat-divider></mat-divider>
-                    <div cdkDropList class="example-list" (cdkDropListDropped)="drop($event, $index)">
+                    <div cdkDropList class="example-list" cdkDropListOrientation="horizontal" (cdkDropListDropped)="drop($event, $index)">
                         @for (song of playlist.tracks; track $index) {
                         <div class="audio-element" cdkDrag>
                             {{song.fileName}}

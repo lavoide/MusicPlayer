@@ -1,7 +1,5 @@
-<main class="main">
-  <div class="content">
-    <app-library></app-library>
-    <app-player></app-player>
-  </div>
-</main>
-<router-outlet />
+<nav>
+  <a routerLink="/player" routerLinkActive="active" [class.active]="url === '/player'" ariaCurrentWhenActive="page">Player</a>
+  <a routerLink="/editor" routerLinkActive="active" [class.active]="url === '/editor'" ariaCurrentWhenActive="page">Editor</a>
+</nav>
+<router-outlet></router-outlet>
