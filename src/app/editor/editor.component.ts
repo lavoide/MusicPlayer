@@ -4,6 +4,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   CdkDragDrop,
   CdkDropList,
@@ -18,6 +19,7 @@ import {
   Tracklist,
 } from '../shared/audio-editor.service';
 import { AudioStreamService } from '../shared/audio-stream.service';
+import { tick } from '@angular/core/testing';
 
 @Component({
   selector: 'app-editor',
@@ -28,6 +30,7 @@ import { AudioStreamService } from '../shared/audio-stream.service';
     MatIconModule,
     MatButtonModule,
     MatMenuModule,
+    MatTooltipModule,
     CdkDropListGroup,
     CdkDropList,
     CdkDrag,
@@ -45,6 +48,9 @@ export class EditorComponent {
   public currentTime: number = 0;
   public isPlaying: boolean = false;
   public isLoaded: boolean = false;
+  public hasSongs: boolean = false;
+  public maxDuration: number = 0;
+  public longestTracklist: number = 0;
 
   constructor() {
     this.tracklists = this.audioEditorService.tracks$.getValue();
@@ -54,14 +60,25 @@ export class EditorComponent {
   ngOnInit() {
     this.audioEditorService.tracks$.subscribe((tracks) => {
       this.tracklists = tracks;
+      this.hasSongs = this.checkSongs();
+      this.maxDuration = this.calculateMaxDuration();
+      let longest = 0;
+      let id = 0;
+      tracks.forEach((track, index) => {
+        if (track.totalDuration > longest) {
+          longest = track.totalDuration;
+          id = index;
+        }
+      });
+      this.longestTracklist = id;
     });
     this.audioEditorService.isPlaying$.subscribe((isPlaying) => {
       this.isPlaying = isPlaying;
     });
   }
 
-  public seekTo(event: any, tracklistIndex: number) {
-    this.audioEditorService.seekToTime(event.value, tracklistIndex);
+  public seekTo(event: any) {
+    this.audioEditorService.seekToTime(event.value);
   }
 
   public formatLabel = (value: number) => {
@@ -83,8 +100,8 @@ export class EditorComponent {
     this.audioEditorService.resume();
   };
 
-  public playTracklist = (i: number) => {
-    this.audioEditorService.refresh(i);
+  public playTracklist = () => {
+    this.audioEditorService.refresh();
     this.isLoaded = true;
   };
 
@@ -93,7 +110,6 @@ export class EditorComponent {
   };
 
   public drop(event: CdkDragDrop<AudioTrack[]>): void {
-    if (!this.isLoaded) return;
     if (event.previousContainer === event.container) {
       moveItemInArray(
         event.container.data,
@@ -101,7 +117,6 @@ export class EditorComponent {
         event.currentIndex
       );
     } else {
-      console.log('trasfer')
       transferArrayItem(
         event.previousContainer.data,
         event.container.data,
@@ -109,9 +124,11 @@ export class EditorComponent {
         event.currentIndex
       );
     }
-
     this.audioEditorService.tracks$.next(this.tracklists);
-    this.audioEditorService.refresh(0);
+    this.audioEditorService.recalculateDurations();
+    if (this.isLoaded) {
+      this.audioEditorService.refresh();
+    }
   }
 
   public changeVolume = (
@@ -137,4 +154,33 @@ export class EditorComponent {
   public deleteTrack = (trackListIndex: number, trackIndex: number) => {
     this.audioEditorService.deleteTrack(trackListIndex, trackIndex);
   };
+
+  public checkSongs = () => {
+    let hasSongs = false;
+    this.tracklists.forEach((tracklist) => {
+      if (tracklist.tracks.length > 0) {
+        hasSongs = true;
+      }
+    });
+    return hasSongs;
+  };
+
+  public calculateMaxDuration() {
+    let maxDuration = 0;
+    this.tracklists.forEach((tracklist) => {
+      const totalDuration = tracklist.totalDuration;
+      if (totalDuration > maxDuration) {
+        maxDuration = totalDuration;
+      }
+    });
+    return maxDuration;
+  }
+
+  public addTrackList() {
+    this.audioEditorService.addTracklist();
+  }
+
+  public deleteTrackList(i: number) {
+    this.audioEditorService.deleteTracklist(i);
+  }
 }

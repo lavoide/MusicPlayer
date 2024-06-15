@@ -3,11 +3,17 @@
     <div class="audio-element">
         {{song.fileName}}
         <div class="buttons">
-            <button mat-icon-button (click)="addToEditor($event, song, 0)" matTooltip="Add to editor">
+            <button mat-icon-button [matMenuTriggerFor]="menuAdd" matTooltip="Add to editor">
                 <mat-icon>
                     add
                 </mat-icon>
             </button>
+            <mat-menu #menuAdd="matMenu" yPosition="above">
+                @for(tracklist of tracklists; track $index) {
+                <button (click)="addToEditor($event, song, $index)" mat-menu-item>{{'Tracklist ' + ($index +
+                    1)}}</button>
+                }
+            </mat-menu>
         </div>
     </div>
     }
