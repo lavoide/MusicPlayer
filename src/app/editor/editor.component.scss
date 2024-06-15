@@ -4,11 +4,23 @@
     width: 100%;
     display: flex;
     flex-direction: column;
+    margin-bottom: 4px;
     .track {
       height: 50px;
       background-color: var(--mdc-fab-small-container-color);
       margin-left: 76px;
       margin-right: 76px;
+      position: relative;
+      .add-track-btn {
+        position: absolute;
+        right: -60px;
+        bottom: 6px;
+      }
+      .delete-track-btn {
+        position: absolute;
+        left: -60px;
+        bottom: 6px;
+      }
     }
     .track-item-wrap {
       display: flex;
