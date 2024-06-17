@@ -13,12 +13,17 @@
       position: relative;
       .add-track-btn {
         position: absolute;
-        right: -60px;
+        right: -75px;
         bottom: 6px;
       }
       .delete-track-btn {
         position: absolute;
         left: -60px;
+        bottom: 6px;
+      }
+      .change-track-speed-btn {
+        position: absolute;
+        right: -50px;
         bottom: 6px;
       }
     }
@@ -61,6 +66,12 @@
     margin-top: 20px;
     margin-bottom: 20px;
   }
+  .additional-buttons {
+    color: var(--mat-app-text-color);
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
 }
 
 .cdk-drag-preview {
@@ -102,5 +113,11 @@
   .duration-slider .mat-mdc-slider-visual-thumb .mat-ripple {
     height: 0 !important;
     width: 0 !important;
+  }
+  .mat-mdc-menu-content {
+    color: var(--mat-app-text-color);
+  }
+  .change-track-speed-btn .mat-mdc-button-persistent-ripple {
+    display: none;
   }
 }

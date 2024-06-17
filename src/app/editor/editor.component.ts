@@ -51,6 +51,7 @@ export class EditorComponent {
   public hasSongs: boolean = false;
   public maxDuration: number = 0;
   public longestTracklist: number = 0;
+  public compositionRate: number = 1;
 
   constructor() {
     this.tracklists = this.audioEditorService.tracks$.getValue();
@@ -145,6 +146,15 @@ export class EditorComponent {
     rate: number
   ) => {
     this.audioEditorService.changeRate(trackListIndex, trackIndex, rate);
+  };
+
+  public changeCompositionRate = (event: any) => {
+    this.compositionRate = event.value;
+    this.audioEditorService.changeCompositionRate(this.compositionRate);
+  };
+
+  public changeTracklistRate = (event: any, tracklistIndex: number) => {
+    this.audioEditorService.changeTracklistRate(event.value, tracklistIndex);
   };
 
   public copyTrack = (trackListIndex: number, trackIndex: number) => {

@@ -10,6 +10,7 @@ export class AudioEditorService {
     {
       totalDuration: 0,
       currentTime: 0,
+      tracklistRate: 1,
       tracks: [],
     },
   ];
@@ -32,7 +33,12 @@ export class AudioEditorService {
 
   public addTracklist() {
     this.pause();
-    this.tracklist.push({ totalDuration: 0, currentTime: 0, tracks: [] });
+    this.tracklist.push({
+      totalDuration: 0,
+      currentTime: 0,
+      tracklistRate: 1,
+      tracks: [],
+    });
     this.tracks$.next(this.tracklist);
     this.refresh();
   }
@@ -247,6 +253,26 @@ export class AudioEditorService {
     this.tracks$.next(this.tracklist);
   }
 
+  public changeCompositionRate(rate: number) {
+    this.tracklist.forEach((tracklist) => {
+      tracklist.tracks.forEach((track) => {
+        track.audio.playbackRate = rate;
+        track.playbackRate = rate;
+      });
+      tracklist.tracklistRate = rate;
+    });
+    this.tracks$.next(this.tracklist);
+  }
+
+  public changeTracklistRate(rate: number, trackListIndex: number) {
+    this.tracklist[trackListIndex].tracks.forEach((track) => {
+      track.audio.playbackRate = rate;
+      track.playbackRate = rate;
+    });
+    this.tracklist[trackListIndex].tracklistRate = rate;
+    this.tracks$.next(this.tracklist);
+  }
+
   public copyTrack(trackListIndex: number, trackIndex: number) {
     const tracklist = this.tracklist[trackListIndex];
     const track = tracklist.tracks[trackIndex];
@@ -303,5 +329,6 @@ export interface AudioTrack {
 export interface Tracklist {
   totalDuration: number;
   currentTime: number;
+  tracklistRate: number;
   tracks: AudioTrack[];
 }
