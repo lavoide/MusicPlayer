@@ -23,8 +23,10 @@
       }
       .change-track-speed-btn {
         position: absolute;
-        right: -50px;
+        right: -34px;
         bottom: 6px;
+        width: 30px;
+        min-width: 30px;
       }
     }
     .track-item-wrap {
@@ -118,6 +120,9 @@
     color: var(--mat-app-text-color);
   }
   .change-track-speed-btn .mat-mdc-button-persistent-ripple {
-    display: none;
+    display: none !important;
+  }
+  .change-track-speed-btn .mat-mdc-button-ripple {
+    display: none !important;
   }
 }

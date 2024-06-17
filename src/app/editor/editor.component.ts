@@ -149,6 +149,14 @@ export class EditorComponent {
     this.audioEditorService.changeRate(trackListIndex, trackIndex, rate);
   };
 
+  public changePitch = (
+    trackListIndex: number,
+    trackIndex: number,
+    detune: number
+  ) => {
+    this.audioEditorService.changePitch(trackListIndex, trackIndex, detune);
+  };
+
   public changeCompositionRate = (event: any) => {
     this.compositionRate = event.value;
     this.audioEditorService.changeCompositionRate(this.compositionRate);

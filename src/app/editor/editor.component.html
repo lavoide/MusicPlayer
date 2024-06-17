@@ -27,6 +27,7 @@
                             <button (click)="copyTrack(i, j)" mat-menu-item>Copy</button>
                             <button (click)="deleteTrack(i, j)" mat-menu-item>Delete</button>
                             <button [matMenuTriggerFor]="rate" mat-menu-item>Change Tempo</button>
+                            <button [matMenuTriggerFor]="pitch" mat-menu-item>Change Pitch</button>
                         </mat-menu>
                         <mat-menu #rate="matMenu">
                             {{ track.playbackRate }}
@@ -34,6 +35,13 @@
                                 [displayWith]="formatLabelSpeed">
                                 <input matSliderThumb #rateslider [value]="track.playbackRate"
                                     (dragEnd)="changeRate(i, j, $event.value)"></mat-slider>
+                        </mat-menu>
+
+                        <mat-menu #pitch="matMenu">
+                            {{ track.detune }}
+                            <mat-slider class="pitch-slider" min="-2400" max="2400" step="100">
+                                <input matSliderThumb #pitchslider [value]="track.detune"
+                                    (dragEnd)="changePitch(i, j, $event.value)"></mat-slider>
                         </mat-menu>
                     </div>
                 </div>
