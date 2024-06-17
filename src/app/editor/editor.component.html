@@ -27,12 +27,21 @@
                             <button (click)="copyTrack(i, j)" mat-menu-item>Copy</button>
                             <button (click)="deleteTrack(i, j)" mat-menu-item>Delete</button>
                             <button [matMenuTriggerFor]="rate" mat-menu-item>Change Tempo</button>
+                            <button [matMenuTriggerFor]="pitch" mat-menu-item>Change Pitch</button>
                         </mat-menu>
                         <mat-menu #rate="matMenu">
+                            {{ track.playbackRate }}
                             <mat-slider class="rate-slider" min="0.5" max="2" step="0.1"
                                 [displayWith]="formatLabelSpeed">
                                 <input matSliderThumb #rateslider [value]="track.playbackRate"
                                     (dragEnd)="changeRate(i, j, $event.value)"></mat-slider>
+                        </mat-menu>
+
+                        <mat-menu #pitch="matMenu">
+                            {{ track.detune }}
+                            <mat-slider class="pitch-slider" min="-2400" max="2400" step="100">
+                                <input matSliderThumb #pitchslider [value]="track.detune"
+                                    (dragEnd)="changePitch(i, j, $event.value)"></mat-slider>
                         </mat-menu>
                     </div>
                 </div>
@@ -52,6 +61,14 @@
                 <mat-icon>add</mat-icon>
             </button>
             }
+
+            <button mat-button [disabled]="!hasSongs || tracklist.tracks.length === 0" class="change-track-speed-btn"
+                [matMenuTriggerFor]="rateTrackEditor">{{'x'+tracklist.tracklistRate || 'x1'}}</button>
+            <mat-menu #rateTrackEditor="matMenu">
+                <mat-slider class="rate-editor-slider" min="0.5" max="2" step="0.1">
+                    <input matSliderThumb #rateEditorslider [value]="tracklist.tracklistRate"
+                        (dragEnd)="changeTracklistRate($event, i)"></mat-slider>
+            </mat-menu>
         </div>
     </div>
 
@@ -84,5 +101,16 @@
             <mat-icon>play_arrow</mat-icon>
         </button>
         }
+    </div>
+
+    <div class="additional-buttons">
+        Composition speed:
+        <button mat-button [disabled]="!hasSongs" [matMenuTriggerFor]="rateEditor">{{'x'+compositionRate ||
+            'x1'}}</button>
+        <mat-menu #rateEditor="matMenu">
+            <mat-slider class="rate-editor-slider" min="0.5" max="2" step="0.1">
+                <input matSliderThumb #rateEditorslider [value]="compositionRate"
+                    (dragEnd)="changeCompositionRate($event)"></mat-slider>
+        </mat-menu>
     </div>
 </div>

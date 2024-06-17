@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatIconModule } from '@angular/material/icon';
@@ -19,7 +19,6 @@ import {
   Tracklist,
 } from '../shared/audio-editor.service';
 import { AudioStreamService } from '../shared/audio-stream.service';
-import { tick } from '@angular/core/testing';
 
 @Component({
   selector: 'app-editor',
@@ -51,8 +50,9 @@ export class EditorComponent {
   public hasSongs: boolean = false;
   public maxDuration: number = 0;
   public longestTracklist: number = 0;
+  public compositionRate: number = 1;
 
-  constructor() {
+  constructor(private _cdr: ChangeDetectorRef) {
     this.tracklists = this.audioEditorService.tracks$.getValue();
     this.isPlaying = this.audioEditorService.isPlaying$.getValue();
   }
@@ -71,9 +71,11 @@ export class EditorComponent {
         }
       });
       this.longestTracklist = id;
+      this._cdr.detectChanges();
     });
     this.audioEditorService.isPlaying$.subscribe((isPlaying) => {
       this.isPlaying = isPlaying;
+      this._cdr.detectChanges();
     });
   }
 
@@ -101,7 +103,7 @@ export class EditorComponent {
   };
 
   public playTracklist = () => {
-    this.audioEditorService.refresh();
+    this.audioEditorService.refresh(true);
     this.isLoaded = true;
   };
 
@@ -145,6 +147,23 @@ export class EditorComponent {
     rate: number
   ) => {
     this.audioEditorService.changeRate(trackListIndex, trackIndex, rate);
+  };
+
+  public changePitch = (
+    trackListIndex: number,
+    trackIndex: number,
+    detune: number
+  ) => {
+    this.audioEditorService.changePitch(trackListIndex, trackIndex, detune);
+  };
+
+  public changeCompositionRate = (event: any) => {
+    this.compositionRate = event.value;
+    this.audioEditorService.changeCompositionRate(this.compositionRate);
+  };
+
+  public changeTracklistRate = (event: any, tracklistIndex: number) => {
+    this.audioEditorService.changeTracklistRate(event.value, tracklistIndex);
   };
 
   public copyTrack = (trackListIndex: number, trackIndex: number) => {
