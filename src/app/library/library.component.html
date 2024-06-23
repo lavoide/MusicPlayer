@@ -2,18 +2,19 @@
     <mat-tab-group>
         <mat-tab label="Library">
             <mat-selection-list color="primary" #songs>
-                @for (song of audio; track song.url) {
+                @for (song of audio(); track song.url) {
                 <mat-list-option [value]="song">
                     <div class="audio-element">
                         {{song.fileName}}
                         <div class="buttons">
-                            @if (state?.songName === song.fileName && state?.isPlaying) { <button mat-icon-button
-                                (click)="pause($event)">
+                            @if (state().songName === song.fileName && state().isPlaying) { <button mat-icon-button
+                                (click)="$event.stopPropagation(); audioStreamService.pause()">
                                 <mat-icon>
                                     pause
                                 </mat-icon>
                             </button>}
-                            @else {<button mat-icon-button (click)="play($event, song)">
+                            @else {<button mat-icon-button
+                                (click)="$event.stopPropagation(); audioStreamService.playStream(song)">
                                 <mat-icon>
                                     play_arrow
                                 </mat-icon>
@@ -23,14 +24,14 @@
                                     content_cut
                                 </mat-icon>
                             </button>
-
                             <mat-menu class="cut-menu" #menuCut="matMenu">
                                 <div class="cut-menu-wrapper">
                                     {{audioStreamService.formatTime(cutStart)}}
-                                    <mat-slider (click)="$event.stopPropagation()" class="cut-slider" min="0" [max]="state?.duration" step="0.1"
-                                        [disabled]="state?.error || !state?.canPlay">
+                                    <mat-slider (click)="$event.stopPropagation()" class="cut-slider" min="0"
+                                        [max]="state().duration" step="0.1"
+                                        [disabled]="state().error || !state().canPlay">
                                         <input [value]="0" (dragEnd)="handleCutStart($event)" matSliderStartThumb>
-                                        <input [value]="state?.duration" (dragEnd)="handleCutEnd($event)"
+                                        <input [value]="state().duration" (dragEnd)="handleCutEnd($event)"
                                             matSliderEndThumb>
                                     </mat-slider>
                                     {{audioStreamService.formatTime(cutEnd)}}
@@ -42,46 +43,44 @@
                 </mat-list-option>
                 }
             </mat-selection-list>
-
             <div class="buttons-wrap">
-                <button (click)="createPlaylist()" [disabled]="selectedSongs.length === 0" mat-flat-button
+                <button (click)="createPlaylist()" [disabled]="selectedSongs().length === 0" mat-flat-button
                     color="primary">Create new playlist</button>
-                <button (click)="addToPlaylist()" [disabled]="selectedSongs.length === 0" mat-flat-button
+                <button (click)="addToPlaylist()" [disabled]="selectedSongs().length === 0" mat-flat-button
                     color="primary">Add to existing playlist</button>
                 <button mat-mini-fab color="primary" class="upload-btn" (click)="fileUpload.click()">
                     <mat-icon>attach_file</mat-icon>
                 </button>
             </div>
-
-
             <input type="file" class="file-input" accept="audio/*" (change)="onFileSelected($event)" #fileUpload>
-
         </mat-tab>
         <mat-tab label="Playlists">
             <div class="info">
                 <mat-icon>info</mat-icon> Drag and drop songs to reorder
             </div>
-            @for (playlist of playlists; track $index; ) {
+            @for (playlist of playlists(); track $index; ) {
             <mat-accordion>
-                <mat-expansion-panel [expanded]="playlistsState[$index]" (opened)="playlistsState[$index] = true"
-                    (closed)="playlistsState[$index] = false">
+                <mat-expansion-panel [expanded]="playlistsState()[$index]" (opened)="playlistsState()[$index] = true"
+                    (closed)="playlistsState()[$index] = false">
                     <mat-expansion-panel-header>
                         <mat-panel-title>
                             {{playlist.name}}
                         </mat-panel-title>
                     </mat-expansion-panel-header>
                     <mat-divider></mat-divider>
-                    <div cdkDropList class="example-list" cdkDropListOrientation="horizontal" (cdkDropListDropped)="drop($event, $index)">
+                    <div cdkDropList class="example-list" cdkDropListOrientation="horizontal"
+                        (cdkDropListDropped)="drop($event, $index)">
                         @for (song of playlist.tracks; track $index) {
                         <div class="audio-element" cdkDrag>
                             {{song.fileName}}
-                            @if (state?.songName === song.fileName && state?.isPlaying) { <button mat-icon-button
-                                (click)="pause($event)">
+                            @if (state().songName === song.fileName && state().isPlaying) { <button mat-icon-button
+                                (click)="$event.stopPropagation(); audioStreamService.pause()">
                                 <mat-icon>
                                     pause
                                 </mat-icon>
                             </button>}
-                            @else {<button mat-icon-button (click)="playFromPlaylist($event, playlist, $index)">
+                            @else {<button mat-icon-button
+                                (click)="$event.stopPropagation(); audioStreamService.playFromPlaylist(playlist, $index)">
                                 <mat-icon>
                                     play_arrow
                                 </mat-icon>

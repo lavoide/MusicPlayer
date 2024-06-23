@@ -1,5 +1,5 @@
 <div class="tracklist-wrapper">
-    @for (song of audio; track song.url) {
+    @for (song of audio(); track song.url) {
     <div class="audio-element">
         {{song.fileName}}
         <div class="buttons">

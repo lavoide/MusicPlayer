@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject, Subject, of } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import * as moment from 'moment';
+import { signal, Signal, WritableSignal } from '@angular/core';
+import moment from 'moment';
 import { AudioFile, PlayList } from './audio.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AudioStreamService {
-  private stop$ = new Subject();
+  private stop$ = signal(false);
   private audioObj = new Audio();
   audioEvents = [
     'ended',
@@ -21,7 +20,7 @@ export class AudioStreamService {
     'loadedmetadata',
     'loadstart',
   ];
-  private state: StreamState = {
+  private state: WritableSignal<StreamState> = signal<StreamState>({
     isPlaying: false,
     readableCurrentTime: '',
     readableDuration: '',
@@ -34,32 +33,18 @@ export class AudioStreamService {
     volume: 1,
     trackNumber: null,
     songName: '',
-  };
-  private playlist$: BehaviorSubject<PlayList> = new BehaviorSubject<PlayList>({
+  });
+  private playlist: WritableSignal<PlayList> = signal<PlayList>({
     name: '',
     tracks: [],
   });
 
-  private streamObservable(url: any, load: boolean = false) {
-    return new Observable((observer) => {
-      this.audioObj.src = url;
-      this.audioObj.load();
-      if (!load) {
-        this.play();
-      }
-      const handler = (event: Event) => {
-        this.updateStateEvents(event);
-        observer.next(event);
-      };
-
-      this.addEvents(this.audioObj, this.audioEvents, handler);
-      return () => {
-        this.pause();
-        this.audioObj.currentTime = 0;
-        this.removeEvents(this.audioObj, this.audioEvents, handler);
-        this.resetState();
-      };
-    });
+  constructor() {
+    this.addEvents(
+      this.audioObj,
+      this.audioEvents,
+      this.updateStateEvents.bind(this)
+    );
   }
 
   private addEvents(obj: any, events: any, handler: any) {
@@ -74,40 +59,50 @@ export class AudioStreamService {
     });
   }
 
+  private streamAudio(file: AudioFile, load: boolean = false) {
+    this.audioObj.src = file.url;
+    this.audioObj.load();
+    if (!load) {
+      this.play();
+    }
+  }
+
   playStream(file: AudioFile, isPlaylist: boolean = false) {
     if (!isPlaylist) {
-      this.state.trackNumber = null;
+      this.state.set({ ...this.state(), trackNumber: null });
     }
-    this.state.songName = file.fileName;
-    this.stateChange.next(this.state);
-    return this.streamObservable(file.url).pipe(takeUntil(this.stop$));
+    this.state.set({ ...this.state(), songName: file.fileName });
+    this.streamAudio(file);
   }
 
   playFromPlaylist(playlist: PlayList, trackNumber: number) {
-    this.playlist$.next(playlist);
-    this.state.trackNumber = trackNumber;
-    this.stateChange.next(this.state);
-    return this.playStream(playlist.tracks[trackNumber], true);
+    this.playlist.set(playlist);
+    this.state.set({ ...this.state(), trackNumber: trackNumber });
+    this.playStream(playlist.tracks[trackNumber], true);
   }
 
   loadForCut(file: AudioFile) {
-    this.stateChange.next(this.state);
-    return this.streamObservable(file.url, true).pipe(takeUntil(this.stop$));
+    this.streamAudio(file, true);
   }
 
   play() {
-    this.audioObj.loop = this.state.isLooping;
-    this.audioObj.playbackRate = this.state.playbackRate;
-    this.audioObj.volume = this.state.volume;
+    this.audioObj.loop = this.state().isLooping;
+    this.audioObj.playbackRate = this.state().playbackRate;
+    this.audioObj.volume = this.state().volume;
     this.audioObj.play();
+    this.state.set({ ...this.state(), isPlaying: true });
   }
 
   pause() {
     this.audioObj.pause();
+    this.state.set({ ...this.state(), isPlaying: false });
   }
 
   stop() {
-    this.stop$.next(true);
+    this.stop$.set(true);
+    this.pause();
+    this.audioObj.currentTime = 0;
+    this.resetState();
   }
 
   seekTo(seconds: number) {
@@ -116,52 +111,43 @@ export class AudioStreamService {
 
   loop(param: boolean) {
     this.audioObj.loop = param;
-    this.state.isLooping = param;
-    this.stateChange.next(this.state);
+    this.state.set({ ...this.state(), isLooping: param });
   }
 
   changeRate(rate: number) {
     this.audioObj.playbackRate = rate;
-    this.state.playbackRate = rate;
-    this.stateChange.next(this.state);
+    this.state.set({ ...this.state(), playbackRate: rate });
   }
 
   changeVolume(volume: number) {
     this.audioObj.volume = volume;
-    this.state.volume = volume;
-    this.stateChange.next(this.state);
+    this.state.set({ ...this.state(), volume: volume });
   }
 
   nextTrack() {
+    const playlist = this.playlist();
     if (
-      this.playlist$.getValue().tracks.length > 0 &&
-      this.state.trackNumber !== null &&
-      this.playlist$.getValue().tracks.length > this.state.trackNumber + 1
+      playlist &&
+      this.state().trackNumber !== null &&
+      playlist.tracks.length > this.state().trackNumber! + 1
     ) {
-      this.state.trackNumber = this.state.trackNumber + 1;
-      this.stateChange.next(this.state);
-      return this.playStream(
-        this.playlist$.getValue().tracks[this.state.trackNumber],
-        true
-      );
+      const nextTrackNumber = this.state().trackNumber! + 1;
+      this.state.set({ ...this.state(), trackNumber: nextTrackNumber });
+      this.playStream(playlist.tracks[nextTrackNumber], true);
     }
-    return of(null);
   }
 
   previousTrack() {
+    const playlist = this.playlist();
     if (
-      this.playlist$.getValue().tracks.length > 0 &&
-      this.state.trackNumber !== null &&
-      this.state.trackNumber - 1 >= 0
+      playlist &&
+      this.state().trackNumber !== null &&
+      this.state().trackNumber! > 0
     ) {
-      this.state.trackNumber = this.state.trackNumber - 1;
-      this.stateChange.next(this.state);
-      return this.playStream(
-        this.playlist$.getValue().tracks[this.state.trackNumber],
-        true
-      );
+      const prevTrackNumber = this.state().trackNumber! - 1;
+      this.state.set({ ...this.state(), trackNumber: prevTrackNumber });
+      this.playStream(playlist.tracks[prevTrackNumber], true);
     }
-    return of(null);
   }
 
   formatTime(time: number, format: string = 'HH:mm:ss') {
@@ -169,39 +155,38 @@ export class AudioStreamService {
     return moment.utc(momentTime).format(format);
   }
 
-  private stateChange: BehaviorSubject<StreamState> = new BehaviorSubject(
-    this.state
-  );
-
   private updateStateEvents(event: Event): void {
+    const newState = { ...this.state() };
+
     switch (event.type) {
       case 'canplay':
-        this.state.duration = this.audioObj.duration;
-        this.state.readableDuration = this.formatTime(this.state.duration);
-        this.state.canPlay = true;
+        newState.duration = this.audioObj.duration;
+        newState.readableDuration = this.formatTime(this.audioObj.duration);
+        newState.canPlay = true;
         break;
       case 'playing':
-        this.state.isPlaying = true;
+        newState.isPlaying = true;
         break;
       case 'pause':
-        this.state.isPlaying = false;
+        newState.isPlaying = false;
         break;
       case 'timeupdate':
-        this.state.currentTime = this.audioObj.currentTime;
-        this.state.readableCurrentTime = this.formatTime(
-          this.state.currentTime
+        newState.currentTime = this.audioObj.currentTime;
+        newState.readableCurrentTime = this.formatTime(
+          this.audioObj.currentTime
         );
         break;
       case 'error':
         this.resetState();
-        this.state.error = true;
+        newState.error = true;
         break;
     }
-    this.stateChange.next(this.state);
+
+    this.state.set(newState);
   }
 
   private resetState() {
-    this.state = {
+    this.state.set({
       isPlaying: false,
       readableCurrentTime: '',
       readableDuration: '',
@@ -212,17 +197,17 @@ export class AudioStreamService {
       isLooping: false,
       playbackRate: 1,
       volume: 1,
-      trackNumber: this.playlist$.getValue().tracks.length > 0 ? 0 : null,
+      trackNumber: this.playlist().tracks.length > 0 ? 0 : null,
       songName: '',
-    };
+    });
   }
 
-  getState(): Observable<StreamState> {
-    return this.stateChange.asObservable();
+  getState(): Signal<StreamState> {
+    return this.state;
   }
 
-  getPlaylist(): Observable<PlayList | undefined> {
-    return this.playlist$.asObservable();
+  getPlaylist(): Signal<PlayList | undefined> {
+    return this.playlist;
   }
 }
 

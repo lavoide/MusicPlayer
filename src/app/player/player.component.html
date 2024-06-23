@@ -1,78 +1,80 @@
 <div class="player-wrap">
     <div class="content">
-        {{state?.songName}}
+        {{state().songName}}
         <canvas></canvas>
     </div>
     <div class="controls">
         <mat-toolbar-row class="time-slider-wrap">
-            {{ state?.readableCurrentTime || '00:00:00' }}
-            <mat-slider class="time-slider" min="0" [max]="state?.duration" step="1"
-                [disabled]="state?.error || !state?.canPlay">
-                <input matSliderThumb #slider [value]="state?.currentTime"
-                    (dragEnd)="onSliderChangeEnd($event)"></mat-slider>
-            {{ state?.readableDuration || '00:00:00' }}
+            {{ state().readableCurrentTime || '00:00:00' }}
+            <mat-slider class="time-slider" min="0" [max]="state().duration" step="1"
+                [disabled]="state().error || !state().canPlay">
+                <input matSliderThumb #slider [value]="state().currentTime"
+                    (dragEnd)="audioStreamService.seekTo($event.value)"></mat-slider>
+            {{ state().readableDuration || '00:00:00' }}
         </mat-toolbar-row>
 
         <div class="controls-buttons">
             <div class="controls-button-container">
-                <button mat-button [disabled]="state?.error || !state?.canPlay"
-                    [matMenuTriggerFor]="menu">{{'x'+this.state?.playbackRate || 'x1'}}</button>
+                <button mat-button [disabled]="state().error || !state().canPlay"
+                    [matMenuTriggerFor]="menu">{{'x'+this.state().playbackRate || 'x1'}}</button>
                 <mat-menu #menu="matMenu">
                     <mat-slider class="rate-slider" min="0.5" max="2" step="0.1"
-                        [disabled]="state?.error || !state?.canPlay">
-                        <input matSliderThumb #rateslider [value]="state?.playbackRate"
-                            (dragEnd)="changeRate($event)"></mat-slider>
+                        [disabled]="state().error || !state().canPlay">
+                        <input matSliderThumb #rateslider [value]="state().playbackRate"
+                            (dragEnd)="audioStreamService.changeRate($event.value)"></mat-slider>
                 </mat-menu>
             </div>
             <div class="controls-button-container">
-                <button (click)="rewind()" [disabled]="state?.error || !state?.canPlay" mat-mini-fab color="warn"
-                    aria-label="rewind">
+                <button (click)="audioStreamService.seekTo(0)" [disabled]="state().error || !state().canPlay"
+                    mat-mini-fab color="warn" aria-label="rewind">
                     <mat-icon>fast_rewind</mat-icon>
                 </button>
             </div>
             <div class="controls-button-container">
-                <button (click)="previousTrack()" [disabled]="state?.error || !state?.canPlay || !( 
-                    state && state.trackNumber !== null && state.trackNumber > 0)" mat-mini-fab color="warn"
+                <button (click)="audioStreamService.previousTrack()" [disabled]="state().error || !state().canPlay || !( 
+                    state() && state().trackNumber !== null && state().trackNumber! > 0)" mat-mini-fab color="warn"
                     aria-label="left">
                     <mat-icon>skip_previous</mat-icon>
                 </button>
             </div>
             <div class="controls-button-container">
-                @if (state?.isPlaying) {
-                <button (click)="pause()" [disabled]="state?.error || !state?.canPlay" mat-fab color="warn"
-                    aria-label="pause">
+                @if (state().isPlaying) {
+                <button (click)="audioStreamService.pause()" [disabled]="state().error || !state().canPlay" mat-fab
+                    color="warn" aria-label="pause">
                     <mat-icon>pause_circle</mat-icon>
                 </button>
                 } @else {
-                <button (click)="play()" [disabled]="state?.error || !state?.canPlay" mat-fab color="warn"
-                    aria-label="play">
+                <button (click)="audioStreamService.play()" [disabled]="state().error || !state().canPlay" mat-fab
+                    color="warn" aria-label="play">
                     <mat-icon>play_circle</mat-icon>
                 </button>
                 }
             </div>
             <div class="controls-button-container">
-                <button (click)="nextTrack()" [disabled]="state?.error || !state?.canPlay || !(
-                    state && state.trackNumber !== null && 
-                    playlist && playlist.tracks.length > 0 && playlist.tracks.length >= state.trackNumber + 2)"
-                    mat-mini-fab color="warn" aria-label="right">
+                <button (click)="audioStreamService.nextTrack()"
+                    [disabled]="state().error || !state().canPlay || !(
+                    state() && state().trackNumber !== null && 
+                    playlist() && playlist()!.tracks.length > 0 && playlist()!.tracks.length >= state().trackNumber! + 2)" mat-mini-fab color="warn"
+                    aria-label="right">
                     <mat-icon>skip_next</mat-icon>
                 </button>
             </div>
             <div class="controls-button-container">
-                <button (click)="loop()" [disabled]="state?.error || !state?.canPlay" mat-mini-fab
-                    [color]="this.state?.isLooping ? 'accent' : 'warn'" aria-label="repeat">
+                <button (click)="audioStreamService.loop(!(state().isLooping))"
+                    [disabled]="state().error || !state().canPlay" mat-mini-fab
+                    [color]="this.state().isLooping ? 'accent' : 'warn'" aria-label="repeat">
                     <mat-icon>repeat</mat-icon>
                 </button>
             </div>
             <div class="controls-button-container">
-                <button mat-button [disabled]="state?.error || !state?.canPlay"
-                    [matMenuTriggerFor]="menuVolume">{{this.state
-                    && this.state.volume ? this.state.volume*100 + '%' : '0%'}}</button>
+                <button mat-button [disabled]="state().error || !state().canPlay"
+                    [matMenuTriggerFor]="menuVolume">{{state()
+                    && state().volume ? state().volume*100 + '%' : '0%'}}</button>
                 <mat-menu #menuVolume="matMenu">
                     <mat-slider class="volume-slider" min="0" max="1" step="0.1"
-                        [disabled]="state?.error || !state?.canPlay">
-                        <input matSliderThumb #volumeslider [value]="state?.volume"
-                            (dragEnd)="changeVolume($event)"></mat-slider>
+                        [disabled]="state().error || !state().canPlay">
+                        <input matSliderThumb #volumeslider [value]="state().volume"
+                            (dragEnd)="audioStreamService.changeVolume($event.value)"></mat-slider>
                 </mat-menu>
             </div>
         </div>

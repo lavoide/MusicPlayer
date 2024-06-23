@@ -1,18 +1,20 @@
-import { Component, ViewChild, inject } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  AfterViewInit,
+  OnInit,
+  inject,
+  signal,
+} from '@angular/core';
 import { AudioFile, AudioService, PlayList } from '../shared/audio.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatListModule } from '@angular/material/list';
-import { MatSelectionList } from '@angular/material/list';
+import { MatListModule, MatSelectionList } from '@angular/material/list';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
-import {
-  AudioStreamService,
-  StreamState,
-} from '../shared/audio-stream.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSliderModule } from '@angular/material/slider';
@@ -25,6 +27,9 @@ import {
 } from '@angular/cdk/drag-drop';
 import { AddToPlaylistComponent } from '../dialogs/add-to-playlist/add-to-playlist.component';
 import { CreatePlaylistComponent } from '../dialogs/create-playlist/create-playlist.component';
+import {
+  AudioStreamService,
+} from '../shared/audio-stream.service';
 
 @Component({
   selector: 'app-library',
@@ -46,70 +51,40 @@ import { CreatePlaylistComponent } from '../dialogs/create-playlist/create-playl
     MatSliderModule,
   ],
   templateUrl: './library.component.html',
-  styleUrl: './library.component.scss',
+  styleUrls: ['./library.component.scss'],
 })
-export class LibraryComponent {
-  @ViewChild('songs')
-  songsSelector!: MatSelectionList;
+export class LibraryComponent implements OnInit, AfterViewInit {
+  @ViewChild('songs') songsSelector!: MatSelectionList;
   private audioService = inject(AudioService);
   public audioStreamService = inject(AudioStreamService);
-  public state: StreamState | undefined;
+  public state = this.audioStreamService.getState();
 
   public fileName = '';
   public playlistName = '';
   public cutStart = 0;
   public cutEnd = 0;
 
-  public audio = [] as any;
-  public playlists = [] as any;
+  public audio = this.audioService.audio$;
+  public playlists = this.audioService.playlists$;
   public audioContext = new AudioContext();
-  public selectedSongs = [] as any;
-  public playlistsState = [] as any;
+  public selectedSongs = signal<any[]>([]);
+  public playlistsState = signal<boolean[]>([]);
 
   constructor(public dialog: MatDialog) {}
 
   ngOnInit() {
-    this.audioService.audio$.subscribe((audio) => {
-      this.audio = audio;
-    });
-    this.audioService.playlists$.subscribe((playlists) => {
-      this.playlists = playlists;
-      this.playlistsState = playlists.map((playlist, index) => index === 0);
-    });
-    this.audioStreamService.getState().subscribe((state) => {
-      this.state = state;
-    });
+    this.playlistsState.set(this.playlists().map((_, index) => index === 0));
   }
 
   ngAfterViewInit() {
     this.songsSelector.selectionChange.subscribe(() => {
-      this.selectedSongs = this.songsSelector.selectedOptions.selected.map(
-        (option) => option.value
+      this.selectedSongs.set(
+        this.songsSelector.selectedOptions.selected.map(
+          (option) => option.value
+        )
       );
     });
   }
-
-  public play = (event: Event, audio: any) => {
-    event.stopPropagation();
-    this.audioStreamService.playStream(audio).subscribe((data) => {
-    });
-  };
-
-  public playFromPlaylist = (
-    event: Event,
-    playlist: PlayList,
-    trackNumber: number
-  ) => {
-    event.stopPropagation();
-    this.audioStreamService
-      .playFromPlaylist(playlist, trackNumber)
-      .subscribe((data) => {});
-  };
-
-  public pause = (event: Event) => {
-    event.stopPropagation();
-    this.audioStreamService.pause();
-  };
 
   onFileSelected(event: any) {
     const file: File = event.target.files[0];
@@ -121,12 +96,12 @@ export class LibraryComponent {
 
   addToPlaylist() {
     const dialogRef = this.dialog.open(AddToPlaylistComponent, {
-      data: { playlists: this.playlists, selected: undefined },
+      data: { playlists: this.playlists(), selected: undefined },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
       const playlist: PlayList = result;
-      this.audioService.addToPlaylist(playlist, this.selectedSongs);
+      this.audioService.addToPlaylist(playlist, this.selectedSongs());
     });
   }
 
@@ -139,7 +114,7 @@ export class LibraryComponent {
       this.playlistName = result;
       const playlist: PlayList = {
         name: this.playlistName,
-        tracks: this.selectedSongs,
+        tracks: this.selectedSongs(),
       };
       this.audioService.addPlaylist(playlist);
     });
@@ -147,18 +122,18 @@ export class LibraryComponent {
 
   drop(event: CdkDragDrop<string[]>, index: number): void {
     moveItemInArray(
-      this.playlists[index].tracks,
+      this.playlists()[index].tracks,
       event.previousIndex,
       event.currentIndex
     );
-    this.audioService.reorderPlaylist(this.playlists);
+    this.audioService.reorderPlaylist(this.playlists());
   }
 
   cut(event: Event, song: AudioFile): void {
     event.stopPropagation();
     this.cutStart = 0;
     this.cutEnd = 0;
-    this.audioStreamService.loadForCut(song).subscribe((data) => {});
+    this.audioStreamService.loadForCut(song);
   }
 
   handleCutStart(event: any) {

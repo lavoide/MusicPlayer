@@ -1,4 +1,4 @@
-import { Component, ViewChild, inject } from '@angular/core';
+import { Component, ViewChild, inject, signal, computed } from '@angular/core';
 import { AudioFile, AudioService } from '../shared/audio.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,10 +6,6 @@ import { MatListModule } from '@angular/material/list';
 import { MatSelectionList } from '@angular/material/list';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
-import {
-  AudioStreamService,
-  StreamState,
-} from '../shared/audio-stream.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -31,24 +27,19 @@ import { AudioEditorService, Tracklist } from '../shared/audio-editor.service';
     MatMenuModule,
   ],
   templateUrl: './tracklist.component.html',
-  styleUrl: './tracklist.component.scss',
+  styleUrls: ['./tracklist.component.scss'],
 })
 export class TracklistComponent {
-  @ViewChild('songs')
-  songsSelector!: MatSelectionList;
+  @ViewChild('songs') songsSelector!: MatSelectionList;
   private audioService = inject(AudioService);
   public audioEditorService = inject(AudioEditorService);
-  public fileName = '';
+  public fileName = signal('');
   public tracklists!: Array<Tracklist>;
-
-  public audio = [] as any;
+  public audio = this.audioService.audio$;
 
   constructor(public dialog: MatDialog) {}
 
   ngOnInit() {
-    this.audioService.audio$.subscribe((audio) => {
-      this.audio = audio;
-    });
     this.audioEditorService.tracks$.subscribe((tracks) => {
       this.tracklists = tracks;
     });
@@ -57,8 +48,8 @@ export class TracklistComponent {
   onFileSelected(event: any) {
     const file: File = event.target.files[0];
     if (file) {
-      this.fileName = file.name;
-      this.audioService.addAudioFile(file, this.fileName);
+      this.fileName.set(file.name);
+      this.audioService.addAudioFile(file, this.fileName());
     }
   }
 

@@ -1,102 +1,71 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { signal, computed } from '@angular/core';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AudioService {
-  private audioFiles: Array<AudioFile> = [
-    {
-      fileName: 'Sample 1',
-      url: '/assets/audio/sample-1.mp3',
-    },
-    {
-      fileName: 'Sample 2',
-      url: '/assets/audio/sample-2.mp3',
-    },
-    {
-      fileName: 'Sample 3',
-      url: '/assets/audio/sample-3.mp3',
-    },
-    {
-      fileName: 'Sample 4',
-      url: '/assets/audio/sample-4.mp3',
-    },
-    {
-      fileName: 'Sample 5',
-      url: '/assets/audio/sample-5.mp3',
-    },
-    {
-      fileName: 'Sample 6',
-      url: '/assets/audio/sample-6.mp3',
-    },
-  ];
+  private audioFiles = signal<Array<AudioFile>>([
+    { fileName: 'Sample 1', url: '/assets/audio/sample-1.mp3' },
+    { fileName: 'Sample 2', url: '/assets/audio/sample-2.mp3' },
+    { fileName: 'Sample 3', url: '/assets/audio/sample-3.mp3' },
+    { fileName: 'Sample 4', url: '/assets/audio/sample-4.mp3' },
+    { fileName: 'Sample 5', url: '/assets/audio/sample-5.mp3' },
+    { fileName: 'Sample 6', url: '/assets/audio/sample-6.mp3' },
+  ]);
 
-  private playlists: Array<PlayList> = [
+  private playlists = signal<Array<PlayList>>([
     {
       name: 'Test playlist',
       tracks: [
-        {
-          fileName: 'Sample 3',
-          url: '/assets/audio/sample-3.mp3',
-        },
-        {
-          fileName: 'Sample 4',
-          url: '/assets/audio/sample-4.mp3',
-        },
-        {
-          fileName: 'Sample 5',
-          url: '/assets/audio/sample-5.mp3',
-        },
-        {
-          fileName: 'Sample 6',
-          url: '/assets/audio/sample-6.mp3',
-        },
-        {
-          fileName: 'Sample 7',
-          url: '/assets/audio/sample-7.mp3',
-        },
+        { fileName: 'Sample 3', url: '/assets/audio/sample-3.mp3' },
+        { fileName: 'Sample 4', url: '/assets/audio/sample-4.mp3' },
+        { fileName: 'Sample 5', url: '/assets/audio/sample-5.mp3' },
+        { fileName: 'Sample 6', url: '/assets/audio/sample-6.mp3' },
+        { fileName: 'Sample 7', url: '/assets/audio/sample-7.mp3' },
       ],
     },
-  ];
+  ]);
 
-  public playing = new BehaviorSubject<AudioFile>({
-    fileName: '',
-    url: '',
-  });
-  public audio$ = new BehaviorSubject(this.audioFiles);
-  public playlists$ = new BehaviorSubject(this.playlists);
+  public playing = signal<AudioFile>({ fileName: '', url: '' });
+  public audio$ = computed(() => this.audioFiles());
+  public playlists$ = computed(() => this.playlists());
 
   constructor() {}
 
   public addAudioFile(file: File, fileName?: string) {
     const url = URL.createObjectURL(file);
-    this.audioFiles.push({
-      fileName: fileName ? fileName : 'Audio',
-      url,
-    });
-    this.audio$.next(this.audioFiles);
+    this.audioFiles.update((files) => [
+      ...files,
+      { fileName: fileName || 'Audio', url },
+    ]);
   }
 
   public addToPlaylist(playlist: PlayList, tracks: Array<AudioFile>) {
-    const index = this.playlists.indexOf(playlist);
-    if (index !== -1) {
-      tracks.forEach(track => {
-        if(!this.playlists[index].tracks.includes(track)) {
-          this.playlists[index].tracks.push(track);
-        }
-     })
-    }
-    this.playlists$.next(this.playlists);
+    this.playlists.update((playlists) => {
+      const index = playlists.findIndex((p) => p.name === playlist.name);
+      if (index !== -1) {
+        const updatedTracks = [
+          ...playlists[index].tracks,
+          ...tracks.filter((track) => !playlists[index].tracks.includes(track)),
+        ];
+        const updatedPlaylist = { ...playlists[index], tracks: updatedTracks };
+        return [
+          ...playlists.slice(0, index),
+          updatedPlaylist,
+          ...playlists.slice(index + 1),
+        ];
+      }
+      return playlists;
+    });
   }
 
   public addPlaylist(playlist: PlayList) {
-    this.playlists.push(playlist);
-    this.playlists$.next(this.playlists);
+    this.playlists.update((playlists) => [...playlists, playlist]);
   }
 
-  reorderPlaylist(playlists: Array<PlayList>) {
-    this.playlists$.next(playlists);
+  public reorderPlaylist(playlists: Array<PlayList>) {
+    this.playlists.set(playlists);
   }
 }
 
@@ -107,5 +76,5 @@ export interface AudioFile {
 
 export interface PlayList {
   name: string;
-  tracks: Array<AudioFile | never>;
+  tracks: Array<AudioFile>;
 }
