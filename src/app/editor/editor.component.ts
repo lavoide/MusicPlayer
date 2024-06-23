@@ -45,7 +45,7 @@ export class EditorComponent {
   public tracklists!: Array<Tracklist>;
 
   public currentTime: number = 0;
-  public isPlaying: boolean = false;
+  public isPlaying = this.audioEditorService.isPlaying$;
   public isLoaded: boolean = false;
   public hasSongs: boolean = false;
   public maxDuration: number = 0;
@@ -54,7 +54,6 @@ export class EditorComponent {
 
   constructor(private _cdr: ChangeDetectorRef) {
     this.tracklists = this.audioEditorService.tracks$.getValue();
-    this.isPlaying = this.audioEditorService.isPlaying$.getValue();
   }
 
   ngOnInit() {
@@ -71,10 +70,6 @@ export class EditorComponent {
         }
       });
       this.longestTracklist = id;
-      this._cdr.detectChanges();
-    });
-    this.audioEditorService.isPlaying$.subscribe((isPlaying) => {
-      this.isPlaying = isPlaying;
       this._cdr.detectChanges();
     });
   }

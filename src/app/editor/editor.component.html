@@ -86,7 +86,7 @@
 
     <div class="buttons-wrap">
         @if (isLoaded){
-        @if (isPlaying) {
+        @if (isPlaying.getValue()) {
         <button (click)="pause()" [disabled]="!hasSongs || !isLoaded" mat-fab color="warn" aria-label="pause">
             <mat-icon>pause_circle</mat-icon>
         </button>
